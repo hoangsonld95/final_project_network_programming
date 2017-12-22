@@ -10,13 +10,11 @@
 #include <pthread.h>
 
 #include "errorDefinition.h"
-#include "struct.h"
+#include "processClientRequest.c"
 #include "fileHandling.c"
 #include "messageExchange.c"
-#include "processClientRequest.c"
 
-#define BACKLOG 5
-#define BUFFER_SIZE 1000
+
 
 struct sockaddr_in clientAddress;
 
@@ -66,7 +64,9 @@ void *connection_handler(void *socketTupple) {
 	while(check) {
 
 		check = receiveMessage(connecting_socket, buffer);
+		printf("=======\n");
 		printf("def: %s\n", buffer);
+		printf("---------\n");
 		processClientRequest(buffer, connecting_socket, clientAddress);
 
 	}
