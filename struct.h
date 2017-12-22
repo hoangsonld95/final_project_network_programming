@@ -46,6 +46,9 @@ struct User users[100];
 struct Session sessions[100];
 struct Room rooms[100];
 
-int number_of_users = 0;
-int number_of_sessions = 0;
-int number_of_rooms = 0;
+extern int number_of_users = 0;
+extern int number_of_sessions = 0;
+extern int number_of_rooms = 0;
+
+#define BACKLOG 5
+#define BUFFER_SIZE 1000
