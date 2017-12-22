@@ -1,4 +1,4 @@
-# final_project_network_programming
-Final project on network programming
+# FINAL_PROJECT_NETWORK_PROGRAMMING
+This is my final project network programming 
 
-Compile the program by Makefile 
+## Project requirements 
