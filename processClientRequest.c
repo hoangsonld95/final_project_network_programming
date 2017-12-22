@@ -193,7 +193,6 @@ const char* processUserRequest(char user_name[], int connecting_socket, struct s
 			else if(sessions[sessionIndex].sessionStatus == AUTHENTICATED_USER) {
 
 				return LOGOUT_COMPULSORY;
-
 			}
 
 		}
@@ -288,7 +287,6 @@ const char* processLogoutRequest(char user_name[], int connecting_socket, struct
 
 				else {
 					printf("ddd\n");
-
 					return LOGOUT_INVALID;
 
 				}
@@ -367,8 +365,6 @@ void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_
 	printf("6666666666666\n");
 	
 
-
-
 	printf("3333333333333333\n");
 
 	if(strcmp(opcode, "USER") == 0) {
@@ -414,5 +410,7 @@ void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_
 		sendMessage(connecting_socket, message_reply);
 	}
 
+}
 
-	}
+
+
