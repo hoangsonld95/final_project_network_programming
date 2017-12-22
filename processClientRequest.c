@@ -327,7 +327,7 @@ const char* processTrainingRequest(int connecting_socket, struct sockaddr_in cli
 		if(sessions[sessionIndex].sessionStatus == AUTHENTICATED_USER) {
 
 			// Send the training questions back to user
-			
+			sendTrainingQuestionsToUser(connecting_socket, clientAddress);
 
 		}
 
