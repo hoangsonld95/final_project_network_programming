@@ -67,6 +67,7 @@ void *connection_handler(void *socketTupple) {
 		printf("=======\n");
 		printf("def: %s\n", buffer);
 		printf("---------\n");
+
 		processClientRequest(buffer, connecting_socket, clientAddress);
 
 	}
