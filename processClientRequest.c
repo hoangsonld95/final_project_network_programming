@@ -1,3 +1,6 @@
+#include "struct.h"
+
+
 int findUserByUserName(const char user_name[]) {
 
 	int index;
@@ -183,7 +186,7 @@ const char* processUserRequest(char user_name[], int connecting_socket, struct s
 
 			else if(sessions[sessionIndex].sessionStatus == AUTHENTICATED_USER) {
 
-				return USER_ALREADY_LOGINNED;
+				return LOGOUT_COMPULSORY;
 
 			}
 
@@ -240,8 +243,50 @@ const char* processPasswordRequest(char password[], int connecting_socket, struc
 
 }
 
-void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_in clientAddress) {
+const char* processLogoutRequest(char user_name[], int connecting_socket, struct sockaddr_in clientAddress) {
 
+	int sessionIndex;
+
+	sessionIndex = findSessionByClientAddress(clientAddress);
+
+	if(sessionIndex == -1) {
+
+		return LOGOUT_INVALID;
+
+	}
+
+	else {
+
+		if(strcmp(sessions[sessionIndex].user.user_name, user_name) == 0) {
+
+			if(sessions[sessionIndex].sessionStatus == NOT_IDENTIFIED_USER) {
+
+				return LOGOUT_INVALID;
+
+			}
+
+			else if(sessions[sessionIndex].sessionStatus == NOT_AUTHENTICATED_USER) {
+
+				return LOGOUT_INVALID;
+
+			}
+
+			else if(sessions[sessionIndex].sessionStatus == AUTHENTICATED_USER) {
+
+				memset(sessions[sessionIndex].user.user_name, '\0', BUFFER_SIZE);
+				sessions[sessionIndex].sessionStatus = NOT_IDENTIFIED_USER;
+				return LOGOUT_ACCEPTED;
+
+			}
+
+		}
+
+	}
+
+
+}
+
+void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_in clientAddress) {
 
 	char opcode[100];
 	char operand[100];
@@ -263,6 +308,14 @@ void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_
 	else if(strcmp(opcode, "PASS") == 0) {
 
 		strcpy(message_reply, processPasswordRequest(operand, connecting_socket, clientAddress));
+		printf("%s\n", message_reply);
+		sendMessage(connecting_socket, message_reply);
+
+	}
+
+	else if(strcmp(opcode, "LOGOUT") == 0) {
+
+		strcpy(message_reply, processLogoutRequest(operand, connecting_socket, clientAddress));
 		printf("%s\n", message_reply);
 		sendMessage(connecting_socket, message_reply);
 
