@@ -327,7 +327,7 @@ const char* processTrainingRequest(int connecting_socket, struct sockaddr_in cli
 		if(sessions[sessionIndex].sessionStatus == AUTHENTICATED_USER) {
 
 			// Send the training questions back to user
-			return SYNTAX_WRONG;
+			
 
 		}
 
@@ -340,8 +340,8 @@ const char* processTrainingRequest(int connecting_socket, struct sockaddr_in cli
 
 	}
 
-
 }
+
 
 void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_in clientAddress) {
 
@@ -389,12 +389,14 @@ void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_
 	}
 
 	else if(strcmp(opcode, "LOGOUT") == 0) {
+
 		printf("555555555\n");
 		strcpy(message_reply, processLogoutRequest(operand, connecting_socket, clientAddress));
 		printf("%s\n", message_reply);
 		sendMessage(connecting_socket, message_reply);
 
 	}
+
 
 	else if((strcmp(opcode, "TRAINING-MODE") == 0)) {
 
@@ -406,6 +408,7 @@ void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_
 		sendMessage(connecting_socket, message_reply);
 
 	}
+
 
 	else {
 		printf("666666\n");

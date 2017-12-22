@@ -64,6 +64,7 @@ void *connection_handler(void *socketTupple) {
 	while(check) {
 
 		check = receiveMessage(connecting_socket, buffer);
+
 		printf("=======\n");
 		printf("def: %s\n", buffer);
 		printf("---------\n");
