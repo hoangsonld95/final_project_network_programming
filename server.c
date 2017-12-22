@@ -20,6 +20,8 @@
 
 struct sockaddr_in clientAddress;
 
+
+
 void initializeSessions() {
 	int index;
 
@@ -112,6 +114,8 @@ int main(int argc, char const *argv[])
 	}
 
 	addrlen = sizeof(struct sockaddr_in);
+
+	initializeSessions();
 
 	while((connecting_socket = accept(listening_socket, (struct sockaddr*)&clientAddress, &addrlen))) {
 

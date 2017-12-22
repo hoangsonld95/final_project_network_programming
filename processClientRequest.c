@@ -8,7 +8,7 @@ int findUserByUserName(const char user_name[]) {
 		}
 	}
 
-	return 0;
+	return -1;
 
 }
 
@@ -33,11 +33,11 @@ int checkCredentials(const char user_name[], const char password[]) {
 
 }
 
-int findUserBySession(const char user_name[]) {
+int findSessionByUsername(const char user_name[]) {
 
 	int index;
 
-	for(index = 0; index <= number_of_sessions; index++) {
+	for(index = 0; index < number_of_sessions; index++) {
 
 		if(strcmp(sessions[index].user.user_name, user_name) == 0) {
 
@@ -48,19 +48,22 @@ int findUserBySession(const char user_name[]) {
 	}
 
 	return -1;
-
 }
 
-int findClientAddress(struct sockaddr_in clientAddress) {
+int findSessionByClientAddress(struct sockaddr_in clientAddress) {
 
 	int index;
 
 	for(index = 0; index <= number_of_sessions; index++) {
-		if((sessions[index].clientAddress.sin_addr.s_addr == clientAddress.sin_addr.s_addr)) {
+
+		if(sessions[index].clientAddress.sin_addr.s_addr == clientAddress.sin_addr.s_addr) {
+
 			if(sessions[index].clientAddress.sin_port == clientAddress.sin_port) {
 				return index;
 			}
+
 		}
+
 	}
 
 	return -1;
@@ -81,37 +84,25 @@ int printClientAddress() {
 const char* processUserRequest(char user_name[], int connecting_socket, struct sockaddr_in clientAddress) {
 
 	int sessionIndex;
+	int userSessionIndex;
 
-	// Not having any existing sessions
-	if(number_of_sessions == 0) {
+	sessionIndex = findSessionByClientAddress(clientAddress);
 
-		if(findUserByUserName(user_name)) {
-			memcpy(&sessions[number_of_sessions].clientAddress, &clientAddress, sizeof(struct sockaddr_in));
-			sessions[number_of_sessions].sessionStatus = NOT_AUTHENTICATED_USER;
-			strcpy(sessions[number_of_sessions].user.user_name, user_name);
-			number_of_sessions++;
-			return USER_FOUND;
-		}
+	if(sessionIndex == -1) {
 
-		else {
-			memcpy(&sessions[number_of_sessions].clientAddress, &clientAddress, sizeof(struct sockaddr_in));
-			sessions[number_of_sessions].sessionStatus = NOT_IDENTIFIED_USER;
-			number_of_sessions++;
-			return USER_NOT_FOUND;
-		}
+		printf("aaaaaaaa\n");
 
-	}
+		userSessionIndex = findSessionByUsername(user_name);
 
-	// Had existing sessions
-	else {
+		if(userSessionIndex == -1) {
 
-		sessionIndex = findUserBySession(user_name);
-
-		if(sessionIndex == -1) {
+			printf("bbbbbbbbbbbb\n");
 
 			if(findUserByUserName(user_name)) {
 
-				memcpy(&sessions[number_of_sessions].clientAddress, &clientAddress, sizeof(struct sockaddr_in));
+				printf("ccccccccccccc\n");
+
+				memcpy(&sessions[number_of_sessions].clientAddress, &clientAddress, sizeof(clientAddress));
 				sessions[number_of_sessions].sessionStatus = NOT_AUTHENTICATED_USER;
 				strcpy(sessions[number_of_sessions].user.user_name, user_name);
 				number_of_sessions++;
@@ -121,10 +112,61 @@ const char* processUserRequest(char user_name[], int connecting_socket, struct s
 
 			else {
 
-				memcpy(&sessions[number_of_sessions].clientAddress, &clientAddress, sizeof(struct sockaddr_in));
-				sessions[number_of_sessions].sessionStatus = NOT_IDENTIFIED_USER;
-				number_of_sessions++;
+				printf("dddddddddddddddd\n");
+
 				return USER_NOT_FOUND;
+
+			}
+		}
+
+		else {
+
+			printf("eeeeeeeeeeeeee\n");
+
+			if(sessions[userSessionIndex].sessionStatus == NOT_AUTHENTICATED_USER) {
+
+				printf("ffffffffffffffff\n");
+
+				memcpy(&sessions[userSessionIndex].clientAddress, &clientAddress, sizeof(clientAddress));
+				sessions[userSessionIndex].sessionStatus = NOT_AUTHENTICATED_USER;
+				return USER_FOUND;
+
+			}
+
+			else if(sessions[userSessionIndex].sessionStatus == AUTHENTICATED_USER) {
+
+				printf("gggggggggggggggggggg\n");
+
+				return USER_ALREADY_LOGINNED;
+
+			}
+
+		}
+
+	}
+
+	else {
+
+		printf("hhhhhhhhhhhh\n");
+
+		if(strcmp(sessions[sessionIndex].user.user_name, user_name) == 0) {
+
+			printf("iiiiiiiiiiiiiiii\n");
+
+			if(sessions[sessionIndex].sessionStatus == NOT_AUTHENTICATED_USER) {
+
+				printf("kkkkkkkkkkkkkkkk\n");
+
+				memcpy(&sessions[sessionIndex].clientAddress, &clientAddress, sizeof(clientAddress));
+				return  USER_FOUND;
+
+			}
+
+			else if(sessions[sessionIndex].sessionStatus == AUTHENTICATED_USER) {
+
+				printf("llllllllllllllllll\n");
+
+				return USER_ALREADY_LOGINNED;
 
 			}
 
@@ -132,49 +174,10 @@ const char* processUserRequest(char user_name[], int connecting_socket, struct s
 
 		else {
 
-			if(sessions[sessionIndex].sessionStatus == NOT_IDENTIFIED_USER) {
+			if(sessions[sessionIndex].sessionStatus == NOT_AUTHENTICATED_USER) {
 
-				if(findUserByUserName(user_name)) {
-
-					memcpy(&sessions[number_of_sessions].clientAddress, &clientAddress, sizeof(struct sockaddr_in));
-					sessions[number_of_sessions].sessionStatus = NOT_AUTHENTICATED_USER;
-					strcpy(sessions[number_of_sessions].user.user_name, user_name);
-					number_of_sessions++;
-					return USER_FOUND;
-
-				}
-
-				else {
-
-					memcpy(&sessions[number_of_sessions].clientAddress, &clientAddress, sizeof(struct sockaddr_in));
-					sessions[number_of_sessions].sessionStatus = NOT_IDENTIFIED_USER;
-					number_of_sessions++;
-					return USER_NOT_FOUND;
-
-				}
-
-
-			}
-
-			else if(sessions[sessionIndex].sessionStatus == NOT_AUTHENTICATED_USER) {
-
-				if(findUserByUserName(user_name)) {
-
-					memcpy(&sessions[sessionIndex].clientAddress, &clientAddress, sizeof(struct sockaddr_in));
-					sessions[sessionIndex].sessionStatus = NOT_AUTHENTICATED_USER;
-					strcpy(sessions[sessionIndex].user.user_name, user_name);
-					return USER_FOUND;
-
-				}
-
-				else {
-
-					memcpy(&sessions[sessionIndex].clientAddress, &clientAddress, sizeof(struct sockaddr_in));
-					sessions[sessionIndex].sessionStatus == NOT_IDENTIFIED_USER;
-					strcpy(sessions[sessionIndex].user.user_name, user_name);
-					return USER_NOT_FOUND;
-
-				}
+				strcpy(sessions[sessionIndex].user.user_name, user_name);
+				return USER_FOUND;
 
 			}
 
@@ -184,14 +187,12 @@ const char* processUserRequest(char user_name[], int connecting_socket, struct s
 
 			}
 
-
 		}
-
-
-
+		
 	}
 
-	return NULL;
+
+
 
 }
 
@@ -199,13 +200,10 @@ const char* processPasswordRequest(char password[], int connecting_socket, struc
 
 	int sessionIndex;
 
-	sessionIndex = findClientAddress(clientAddress);
+	sessionIndex = findSessionByClientAddress(clientAddress);
 
 	if(sessionIndex == -1) {
 
-		memcpy(&sessions[number_of_sessions].clientAddress, &clientAddress, sizeof(clientAddress));
-		sessions[number_of_sessions].sessionStatus = NOT_IDENTIFIED_USER;
-		number_of_sessions++;
 		return USER_NAME_SHOULD_BE_SENT_FIRST;
 
 	}
@@ -214,8 +212,6 @@ const char* processPasswordRequest(char password[], int connecting_socket, struc
 
 		if(sessions[sessionIndex].sessionStatus == NOT_IDENTIFIED_USER) {
 
-			memcpy(&sessions[number_of_sessions].clientAddress, &clientAddress, sizeof(clientAddress));
-			sessions[number_of_sessions].sessionStatus = NOT_IDENTIFIED_USER;
 			return USER_NAME_SHOULD_BE_SENT_FIRST;
 
 		}
@@ -257,7 +253,9 @@ void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_
 	printf("3333333333333333\n");
 
 	if(strcmp(opcode, "USER") == 0) {
+		printf("4444444444444\n");
 		strcpy(message_reply, processUserRequest(operand, connecting_socket, clientAddress));
+		printf("5555555555555\n");
 		printf("%s\n", message_reply);
 		sendMessage(connecting_socket, message_reply);
 	}
@@ -268,6 +266,12 @@ void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_
 		printf("%s\n", message_reply);
 		sendMessage(connecting_socket, message_reply);
 
+	}
+
+	else {
+		strcpy(message_reply, SYNTAX_WRONG);
+		printf("%s\n", message_reply);
+		sendMessage(connecting_socket, message_reply);
 	}
 
 
