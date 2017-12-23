@@ -9,18 +9,14 @@
 #include <errno.h>
 #include <pthread.h>
 
-#include "errorDefinition.h"
-#include "processClientRequest.c"
-#include "fileHandling.c"
-#include "messageExchange.c"
-
-
+#include "errorDefinition.h" // Dinh nghia loi 
+#include "processClientRequest.c" // Xu ly client request
+#include "fileHandling.c" // xu ly doc/ghi file
+#include "messageExchange.c" // xu ly gui-nhan message
 
 struct sockaddr_in clientAddress;
 
-
-
-void initializeSessions() {
+void initializeSessions() { // khoi tao session
 	int index;
 
 	for(index = 0; index < 100; index++) {
@@ -31,7 +27,7 @@ void initializeSessions() {
 }
 
 
-void printPredefinedSyntax() {
+void printPredefinedSyntax() { // in cac cu phap da dinh nghia san 
 
 	printf("------------------------------------\n");
 	printf("********ADMINISTRATION PRIVILEDGES*********\n");
