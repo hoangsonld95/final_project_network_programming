@@ -23,7 +23,12 @@ struct Room {
 	enum RoomStatus roomStatus;
 };
 
-struct Questions_Answers_Mapping {
+struct Questions_Answers_Mapping_Training {
+	int question;
+	int answer;
+};
+
+struct Questions_Answers_Mapping_Testing {
 	int question;
 	int answer;
 };
@@ -32,7 +37,8 @@ struct Session {
 	struct User user;
 	struct sockaddr_in clientAddress;
 	enum SessionStatus sessionStatus;
-	struct Questions_Answers_Mapping questions_answers_mapping[100];
+	struct Questions_Answers_Mapping_Training questions_answers_mapping_training[100];
+	struct Questions_Answers_Mapping_Testing questions_answers_mapping_testing[100];
 };
 
 struct Socket_Tupple {
@@ -52,3 +58,4 @@ extern int number_of_rooms = 0;
 
 #define BACKLOG 5
 #define BUFFER_SIZE 1000
+#define NUMBER_OF_TRAINING_QUESTIONS;

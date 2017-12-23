@@ -1,4 +1,6 @@
 #include "struct.h"
+#include "generateRandomization.c"
+#include "handleTrainingRequest.c"
 
 
 int findUserByUserName(const char user_name[]) {
@@ -309,6 +311,7 @@ const char* processLogoutRequest(char user_name[], int connecting_socket, struct
 
 }
 
+
 const char* processTrainingRequest(int connecting_socket, struct sockaddr_in clientAddress) {
 
 	int sessionIndex;
@@ -327,7 +330,10 @@ const char* processTrainingRequest(int connecting_socket, struct sockaddr_in cli
 		if(sessions[sessionIndex].sessionStatus == AUTHENTICATED_USER) {
 
 			// Send the training questions back to user
+			sessions[sessionIndex].sessionStatus = CURRENTLY_IN_TRAINING_MODE;
 			sendTrainingQuestionsToUser(connecting_socket, clientAddress);
+			receiveTrainingAnswersFromUser(connecting_socket, clientAddress);
+			sendTraningResultToUser(connecting_socket, clientAddress);
 
 		}
 
