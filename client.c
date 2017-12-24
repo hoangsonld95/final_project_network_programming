@@ -20,7 +20,7 @@ void showMessage(char buffer[]) {
 	}
 
 	else if(strcmp(buffer, USER_NOT_FOUND) == 0) {
-		printf("USER NAME NOT FOUND. ENTER PASSWORD AGAIN\n");
+		printf("USER NAME NOT FOUND. ENTER USER NAME AGAIN\n");
 		return;
 	}
 
@@ -65,6 +65,11 @@ void showMessage(char buffer[]) {
 
 	else if(strcmp(buffer, LOGIN_SUCCESSFUL) == 0) {
 		printf("LOGIN IS SUCCESSFUL\n");
+		printf("*****\n");
+		printf("TYPE ONE OF THE FOLLOWING SYNTAXES TO CONTINUE: \n");
+		printf("1. [TRAINING-MODE]\n");
+		printf("2. [TESTING-MODE]\n");
+		printf("*****\n");
 		return;
 	}
 

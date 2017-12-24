@@ -1,4 +1,5 @@
 #include "struct.h"
+#include "handleTrainingRequest.c"
 
 
 int findUserByUserName(const char user_name[]) {
@@ -328,6 +329,9 @@ const char* processTrainingRequest(int connecting_socket, struct sockaddr_in cli
 
 			// Send the training questions back to user
 			sendTrainingQuestionsToUser(connecting_socket, clientAddress);
+			receiveTrainingAnswersFromUser(connecting_socket, clientAddress);
+			sendResultsBackToUser(connecting_socket, clientAddress);
+
 
 		}
 
