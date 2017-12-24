@@ -4,6 +4,6 @@
 
 int sendTrainingQuestionsToUser(int connecting_socket, struct sockaddr_in clientAddress) {
 
-
+	
 
 }
