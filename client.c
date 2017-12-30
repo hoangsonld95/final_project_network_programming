@@ -6,11 +6,90 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "errorDefinition.h"
 #include "struct.h"
 
-#define BUFFER_SIZE 1000
+#define BUFFER_SIZE 200
+
+int receiveFileFromServer(int client_socket) {
+
+	time_t intps;
+	struct tm* tmi;
+	char file_name[100];
+	FILE *filePointer;
+	char buffer[BUFFER_SIZE];
+	int file_size;
+
+	int received_bytes, written_bytes;
+	int count = 0;
+
+	bzero(file_name, 256);
+	intps = time(NULL);
+	tmi = localtime(&intps);
+	//sprintf(file_name, "client.%d.%d.%d.%d.%d.%d.txt", tmi->tm_mday, tmi->tm_mon+1, 1900+tmi->tm_year, tmi->tm_hour, tmi->tm_min, tmi->tm_sec);
+	sprintf(file_name, "client.txt");
+	printf("Creating the copied output file: %s\n", file_name);
+
+	if((filePointer = fopen(file_name, "w")) == NULL) {
+		printf("fopen() failed\n");
+		return 0;
+	}
+
+	do {
+
+		memset(buffer, '\0', BUFFER_SIZE);
+		received_bytes = recv(client_socket, buffer, BUFFER_SIZE, 0);
+		if(received_bytes < 0) {
+			printf("Error! Cannot receive data from client\n");
+			close(client_socket);
+			break;
+		}
+
+		else {
+			buffer[strlen(buffer)] = '\0';
+			printf("%s", buffer);
+			fputs(buffer, filePointer);
+			memset(buffer, '\0', BUFFER_SIZE);
+
+			if(received_bytes == 0) {
+				break;
+			}
+			if(received_bytes > 0 && received_bytes < 100) {
+				break;
+			}
+		}
+
+	} while(received_bytes > 0);
+
+	//fputs(EOF, filePointer);
+
+	fclose(filePointer);
+
+	return 1;
+
+}
+
+int sendResultsToServer(int client_socket) {
+
+	char results[100];
+	int bytes_sent;
+
+	printf("Enter your results (separated by space respectively)\n");
+	fgets(results, 100, stdin);
+	results[strlen(results) - 1] = '\0';
+
+	bytes_sent = send(client_socket, results, strlen(results), 0);
+	if(bytes_sent == -1) {
+		printf("Error! Cannot send results to server\n");
+		return -1;
+	}
+
+	printf("Results has been sended\n");
+
+
+}
 
 void showMessage(char buffer[]) {
 
@@ -35,11 +114,6 @@ void showMessage(char buffer[]) {
 
 	else if(strcmp(buffer, USER_ALREADY_LOGINNED) == 0) {
 		printf("USER HAS ALREADY LOGINNED\n");
-		return;
-	}
-
-	else if(strcmp(buffer, TRAINING_REQUEST_ACCEPTED) == 0) {
-		printf("TRAINING REQUEST ACCEPTED\n");
 		return;
 	}
 
@@ -132,7 +206,7 @@ int main(int argc, char const *argv[])
 	if(connect(client_socket, (struct sockaddr*)&serverAddress, addrlen) < 0) {
 		printf("connect() failed\n");
 		return 0;
-	}
+	}	
 
 	while(1) {
 
@@ -150,7 +224,16 @@ int main(int argc, char const *argv[])
 
 		buffer[bytes_received] = '\0';
 
-		showMessage(buffer);
+		if(strcmp(buffer, TRAINING_REQUEST_ACCEPTED) == 0) {
+			printf("TRAINING REQUEST ACCEPTED\n");
+			// Receive training questions
+			receiveFileFromServer(client_socket);
+			sendResultsToServer(client_socket);
+		}
+
+		else {
+			showMessage(buffer);
+		}
 
 	}
 

@@ -51,6 +51,7 @@ int main(int argc, char const *argv[])
 	int sent_bytes;
 	int count;
 
+
 	if(argc != 4) {
 		printf("Error usage: %s <ip_server> <port_server> <filename>\n", argv[0]);
 		return EXIT_FAILURE;

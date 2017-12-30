@@ -14,6 +14,7 @@
 #include "fileHandling.c"
 #include "messageExchange.c"
 
+
 struct sockaddr_in clientAddress;
 
 void initializeSessions() {

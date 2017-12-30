@@ -327,15 +327,22 @@ const char* processTrainingRequest(int connecting_socket, struct sockaddr_in cli
 
 		if(sessions[sessionIndex].sessionStatus == AUTHENTICATED_USER) {
 
+			printf("yyyyyyyyyyyyy\n");
 			// Send the training questions back to user
+			sendTrainingAcceptedResponse(connecting_socket, clientAddress);
+
+			printf("ttttt\n");
 			sendTrainingQuestionsToUser(connecting_socket, clientAddress);
-			receiveTrainingAnswersFromUser(connecting_socket, clientAddress);
-			sendResultsBackToUser(connecting_socket, clientAddress);
+			//receiveTrainingAnswersFromUser(connecting_socket, clientAddress);
+			//sendResultsBackToUser(connecting_socket, clientAddress);
+			return TRAINING_REQUEST_ACCEPTED;
 
 
 		}
 
 		else {
+
+			printf("zzzzzzzzzzzzzzzz\n");
 
 			return USER_UNAUTHORIZED_ACTION;
 
@@ -343,6 +350,8 @@ const char* processTrainingRequest(int connecting_socket, struct sockaddr_in cli
 
 
 	}
+
+	return NULL;
 
 }
 
