@@ -10,6 +10,7 @@
 
 #include "errorDefinition.h"
 #include "struct.h"
+#include "messageExchange.c"
 
 #define BUFFER_SIZE 200
 
@@ -21,9 +22,12 @@ int receiveFileFromServer(int client_socket) {
 	FILE *filePointer;
 	char buffer[BUFFER_SIZE];
 	int file_size;
+	char results[100];
+	int messageLength;
 
 	int received_bytes, written_bytes;
 	int count = 0;
+	int check;
 
 	bzero(file_name, 256);
 	intps = time(NULL);
@@ -39,57 +43,50 @@ int receiveFileFromServer(int client_socket) {
 
 	do {
 
-		memset(buffer, '\0', BUFFER_SIZE);
-		received_bytes = recv(client_socket, buffer, BUFFER_SIZE, 0);
-		if(received_bytes < 0) {
-			printf("Error! Cannot receive data from client\n");
-			close(client_socket);
-			break;
-		}
+		bzero(buffer, BUFFER_SIZE);
+		check = receiveMessage(client_socket, buffer);
 
-		else {
-			buffer[strlen(buffer)] = '\0';
-			printf("%s", buffer);
-			fputs(buffer, filePointer);
-			memset(buffer, '\0', BUFFER_SIZE);
+		buffer[strlen(buffer)] = '\0';
+		printf("%s", buffer);
+		fputs(buffer, filePointer);
+			
 
-			if(received_bytes == 0) {
-				break;
-			}
-			if(received_bytes > 0 && received_bytes < 100) {
-				break;
-			}
-		}
+	} while(check > 0);
 
-	} while(received_bytes > 0);
+	//recv(client_socket, buffer, 0, 0);
 
-	//fputs(EOF, filePointer);
+	printf("whywhywhy\n");
 
 	fclose(filePointer);
 
-	return 1;
-
-}
-
-int sendResultsToServer(int client_socket) {
-
-	char results[100];
-	int bytes_sent;
-
-	printf("Enter your results (separated by space respectively)\n");
+	printf("Enter your results (seperated by space respectively) \n");
 	fgets(results, 100, stdin);
 	results[strlen(results) - 1] = '\0';
+	messageLength = strlen(results);
+	printf("%s\n", results);
+	sendMessage(client_socket, results);
+	//printf("Results has been sended\n");
+	recv(client_socket, &count, sizeof(int), 0);
 
-	bytes_sent = send(client_socket, results, strlen(results), 0);
-	if(bytes_sent == -1) {
-		printf("Error! Cannot send results to server\n");
-		return -1;
-	}
+	printf("You've got %d right answers / 5 questions\n", count);
 
-	printf("Results has been sended\n");
+	printf("****************************************\n");
+	printf("NOW, YOU CAN CONTINUE OR QUIT TRAINING-MODE. 2 COMMANDS : \n");
+	printf("1. SYNTAX : [CONTINUE]\n");
+	printf("2. SYNTAX : [EXIT]\n");
+	printf("****************************************\n");
+
+	bzero(buffer, BUFFER_SIZE);
+	fgets(buffer, BUFFER_SIZE, stdin);
+	buffer[strlen(buffer) - 1] = '\0';
+
+	printf("%s\n", buffer);
+
 
 
 }
+
+
 
 void showMessage(char buffer[]) {
 
@@ -228,7 +225,12 @@ int main(int argc, char const *argv[])
 			printf("TRAINING REQUEST ACCEPTED\n");
 			// Receive training questions
 			receiveFileFromServer(client_socket);
-			sendResultsToServer(client_socket);
+			//sendResultsToServer(client_socket);
+		}
+
+		if(strcmp(buffer, TESTING_REQUEST_ACCEPTED) == 0) {
+			printf("TESTING REQUEST ACCEPTED\n");
+			receiveFileFromServer(client_socket);
 		}
 
 		else {

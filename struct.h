@@ -25,7 +25,7 @@ struct Room {
 
 struct Questions_Answers_Mapping {
 	int question;
-	int answer;
+	char answer;
 };
 
 struct Session {

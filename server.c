@@ -53,7 +53,6 @@ void *connection_handler(void *socketTupple) {
 	connecting_socket = ((struct Socket_Tupple*)socketTupple)->connecting_socket;
 	memcpy(&clientAddress, &(((struct Socket_Tupple*)socketTupple)->clientAddress), sizeof(clientAddress));
 
-	printf("222222222222222\n");
 	printf("%d\n", connecting_socket);
 	printf("%s\n", inet_ntoa(clientAddress.sin_addr));
 	printf("%d\n", ntohs(clientAddress.sin_port));
@@ -61,11 +60,7 @@ void *connection_handler(void *socketTupple) {
 	while(check) {
 
 		check = receiveMessage(connecting_socket, buffer);
-
-		printf("=======\n");
 		printf("def: %s\n", buffer);
-		printf("---------\n");
-
 		processClientRequest(buffer, connecting_socket, clientAddress);
 
 	}
@@ -120,10 +115,8 @@ int main(int argc, char const *argv[])
 
 		printf("You've got a connection from %s:%d\n", inet_ntoa(clientAddress.sin_addr), ntohs(clientAddress.sin_port));
 
-		printf("aaaaaaaaa\n");
 		socketTupple = malloc(sizeof(struct Socket_Tupple));
 		memset(socketTupple, '\0', sizeof(struct Socket_Tupple));
-		printf("bbbbbbbbbbb\n");
 
 		socketTupple->connecting_socket = connecting_socket;
 		memcpy(&(socketTupple->clientAddress), &clientAddress, sizeof(clientAddress));
