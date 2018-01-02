@@ -13,6 +13,7 @@
 #include "processClientRequest.c"
 #include "fileHandling.c"
 #include "messageExchange.c"
+#include "adminPriviledges.c"
 
 
 struct sockaddr_in clientAddress;
@@ -30,15 +31,74 @@ void initializeSessions() {
 
 void printPredefinedSyntax() {
 
-	printf("------------------------------------\n");
-	printf("********ADMINISTRATION PRIVILEDGES*********\n");
-	printf("1. ADD ROOM : [ADD NAME_OF_ROOM]\n");
-	printf("2. REMOVE ROOM : [REMOVE NAME_OF_ROOM]\n");
-	printf("3. ADD USER : [ADD NAME_OF_USER]\n");
-	printf("4. REMOVE USER : [REMOVE NAME_OF_USER]\n");
-	printf("5. SHOW ROOM RESULTS : [SHOW ROOM_RESULTS]\n");
-	printf("6. EXIT THE PROGRAM\n");
-	printf("------------------------------------\n");
+	char buffer[100];
+	char opcode[10];
+	char operand[10];
+
+	int choice = 1;
+	FILE *filePointer;
+
+
+	while(choice != 4) {
+
+		printf("------------------------------------\n");
+		printf("********ADMINISTRATION PRIVILEDGES*********\n");
+		printf("1. ADD ROOM\n");
+		printf("2. ADD USER\n");
+		printf("3. SHOW ROOM RESULTS\n");
+		printf("4. DISCARD ADMINISTRATION PRIVILEDGES DASHBOARD\n");
+		printf("------------------------------------\n");
+
+		printf("Type the corresponding syntax that you want to execute: \n");
+		scanf("%d%*c", &choice);
+
+		switch(choice) {
+
+			case 1 : 
+				filePointer = fopen("rooms.txt", "a+");
+				if(filePointer != NULL) {
+					addRoom(filePointer);
+					break;
+				}
+				else {
+					printf("FILE I/O error\n");
+					break;
+				}
+				
+			case 2 : 
+				filePointer = fopen("accounts.txt", "a+");
+				if(filePointer != NULL) {
+					addAccount(filePointer);
+					break;
+				}
+				else {
+					printf("FILE I/O error\n");
+					break;
+				}				
+
+			case 3 : 
+				filePointer = fopen("rooms.txt", "r");
+				if(filePointer != NULL) {
+					showRoomResult(filePointer);
+					break;
+				}
+				else {
+					printf("FILE I/O error\n");
+					break;
+				}
+
+			case 4 : 
+				choice = 4;
+				break;
+
+			default : 
+				break;
+
+		}
+
+	}
+
+	return NULL;
 
 }
 
@@ -82,6 +142,9 @@ int main(int argc, char const *argv[])
 	socklen_t addrlen;
 	int server_port;
 
+	readRoomsFromFile();
+	readAccountsFromFile();
+
 	printPredefinedSyntax();
 
 	listening_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -121,8 +184,6 @@ int main(int argc, char const *argv[])
 		socketTupple->connecting_socket = connecting_socket;
 		memcpy(&(socketTupple->clientAddress), &clientAddress, sizeof(clientAddress));
 
-		readAccountsFromFile();
-		readRoomsFromFile();
 
 		if(pthread_create(&sniffer_thread, NULL, connection_handler, (void*)socketTupple) < 0) {
 			perror("pthread_create() failed");

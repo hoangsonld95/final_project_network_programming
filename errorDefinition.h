@@ -13,6 +13,9 @@
 #define TESTING_REQUEST_ACCEPTED "40"
 #define TESTING_REQUEST_DENIED "41"
 
+#define ROOM_REQUEST_ACCEPTED "42"
+#define ROOM_REQUEST_DENIED "43"
+
 #define USER_UNAUTHORIZED_ACTION "50"
 
 #define LOGIN_SUCCESSFUL "60"
@@ -24,3 +27,10 @@
 
 #define SYNTAX_WRONG "80"
 
+/*========================================================================*/
+
+#define TRAINING_TIME_LIMIT 15
+#define TIME_EXCEEDED "90"
+
+#define SENDING_TRAINING_QUESTIONS 5
+#define TOTAL_TRAINING_QUESTIONS 15

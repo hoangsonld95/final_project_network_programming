@@ -1,0 +1,2 @@
+How to terminate a running terminal
+A. Ctrl+A	B. Ctrl+Z	C. Ctrl+D	D.Ctrl+E

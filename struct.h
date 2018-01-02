@@ -1,26 +1,27 @@
 enum SessionStatus {
-	NOT_IDENTIFIED_USER,
-	NOT_AUTHENTICATED_USER,
-	AUTHENTICATED_USER,
-	CURRENTLY_IN_TRAINING_MODE,
-	CURRENTLY_IN_TESTING_MODE,
-	IDLE
+	NOT_IDENTIFIED_USER, // chua dang nhap
+	NOT_AUTHENTICATED_USER,	// dung user, chua nhap password
+	AUTHENTICATED_USER, // dang nhap roi
+	CURRENTLY_IN_TRAINING_MODE, // dang trong trang thai training
+	CURRENTLY_IN_TESTING_MODE, // dang trong trang thai test
 };
 
 enum RoomStatus {
-	ROOM_TESTING,
-	ROOM_IDLE
+	ROOM_TESTING, // phong dang thi
+	ROOM_IDLE	// phong chua thi
 };
 
 struct User {
-	char user_name[100];
+	char user_name[100]; 
 	char password[100];
 };
 
 struct Room {
-	char room_name[100];
-	struct User users[100];
-	enum RoomStatus roomStatus;
+	char room_name[100]; 
+	int number_of_questions; // so cau hoi
+	int testing_time; // thoi gian thi
+	struct User users[100]; 
+	enum RoomStatus roomStatus; 
 };
 
 struct Questions_Answers_Mapping {
@@ -36,10 +37,8 @@ struct Session {
 };
 
 struct Socket_Tupple {
-
 	int connecting_socket;
 	struct sockaddr_in clientAddress;
-
 };
 
 struct User users[100];
@@ -51,4 +50,4 @@ extern int number_of_sessions = 0;
 extern int number_of_rooms = 0;
 
 #define BACKLOG 5
-#define BUFFER_SIZE 1000
+#define BUFFER_SIZE 3000

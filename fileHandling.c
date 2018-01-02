@@ -26,21 +26,19 @@ int readRoomsFromFile() {
 
 	FILE *filePointer;
 	char line[100];
+	char room_name[100];
 
-	filePointer = fopen("rooms.txt", "r");
+	filePointer = fopen("rooms.txt", "a+");
 
 	if(filePointer == NULL) return 0;
 
-	while(fgets(line, 100, filePointer) != NULL) {
-
-		line[strlen(line) - 1] = '\0';
-
-		strcpy(rooms[number_of_rooms].room_name, line);
-
+	while(!feof(filePointer)) {
+		fscanf(filePointer, "%s\t%d\t%d", rooms[number_of_rooms].room_name, &rooms[number_of_rooms].number_of_questions, &rooms[number_of_rooms].testing_time);
 		rooms[number_of_rooms].roomStatus = ROOM_IDLE;
 		number_of_rooms++;
-
 	}
+
+	printf("done\n");
 
 	fclose(filePointer);
 

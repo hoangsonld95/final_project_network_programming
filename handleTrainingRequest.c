@@ -10,8 +10,6 @@
 #include <unistd.h>
 #include <strings.h>
 
-#define BUFFER_SIZE 100
-
 int readAnswersFromFile(char answers[]) {
 
 	int index = 0;
@@ -30,47 +28,17 @@ int readAnswersFromFile(char answers[]) {
 
 }
 
-int sendTrainingQuestionsToUser(int connecting_socket, struct sockaddr_in clientAddress) {
+int generateRandomQuestions(int random_number[], char answers[], struct sockaddr_in clientAddress) {
 
-	// Make the sending file
-	int starting;
-	int ending;
-	int random_number[10];
-	char question_number[10];
-	int i, messageLength;
-	char extension[] = ".txt";
-	char mode[] = "training_";
-	char filename[100];
-	char character[10];
-	char read_character;
-	char directory[100];
-	char buffer[BUFFER_SIZE];
-	int index;
 	int sessionIndex;
-	char answers[100];
+	int index;
 
-	int count = 0;
-
-	FILE *filePointer = NULL;
-	FILE *componentFilePointer = NULL;
-
-	struct stat fileStatistic;
-	int file_size;
-	struct timeval start, stop, delta;
-
-	int read_bytes, sent_bytes;
-
-	starting = 1;
-	ending = 15;
-
-	generateRandomNumbersBetweenRange(random_number, 5, 1, 15);
-
-	readAnswersFromFile(answers);
+	generateRandomNumbersBetweenRange(random_number, SENDING_TRAINING_QUESTIONS, 1, TOTAL_TRAINING_QUESTIONS);
 
 	sessionIndex = findSessionByClientAddress(clientAddress);
 	printf("SESSION INDEX %d\n", sessionIndex);
 
-	for(index = 0; index < 5; index++) {
+	for(index = 0; index < SENDING_TRAINING_QUESTIONS; index++) {
 
 		sessions[sessionIndex].questions_answers_mapping[index].question = random_number[index];
 		sessions[sessionIndex].questions_answers_mapping[index].answer = answers[random_number[index] - 1];
@@ -80,9 +48,26 @@ int sendTrainingQuestionsToUser(int connecting_socket, struct sockaddr_in client
 			sessions[sessionIndex].questions_answers_mapping[index].answer);
 	}
 
-	filePointer = fopen("training/sending_file.txt", "w");
 
-	for(i = 0; i < 5; i++) {
+}
+
+int concenatingToSendingFile(FILE *filePointer, int random_number[]) {
+
+	int i;
+
+	FILE *componentFilePointer;
+
+	char mode[] = "training_";
+	char directory[100];
+	char extension[] = ".txt";
+
+	char filename[100];
+	char character[10];
+	char question_number[10];
+	char read_character;
+
+	for(i = 0; i < SENDING_TRAINING_QUESTIONS; i++) {
+
 		memset(filename, '\0', 100);
 		memset(character, '\0', 10);
 		memset(directory, '\0', 100);
@@ -119,69 +104,94 @@ int sendTrainingQuestionsToUser(int connecting_socket, struct sockaddr_in client
 
 	fclose(filePointer);
 
+}
+
+
+int sendTrainingQuestionsToUser(int connecting_socket, struct sockaddr_in clientAddress) {
+
+	int random_number[10];
+		
+	int i, messageLength;
+	
+	char read_character;
+	
+	char buffer[BUFFER_SIZE];
+	int index;
+	int sessionIndex;
+	char answers[100];
+
+	int count = 0;
+
+	FILE *filePointer = NULL;
+	FILE *componentFilePointer = NULL;
+
+	struct stat fileStatistic;
+	int file_size;
+
+	int read_bytes, sent_bytes;
+
+	readAnswersFromFile(answers);
+
+	generateRandomQuestions(random_number, answers, clientAddress);
+	
+	filePointer = fopen("training/sending_file.txt", "w");	
+	
+	concenatingToSendingFile(filePointer, random_number);
 	// Send the file to user
 
 	filePointer = fopen("training/sending_file.txt", "r+");
 
-	if(stat("training/sending_file.txt", &fileStatistic) == -1) {
-		perror("stat() failed");
-		return 0;
-	}
+	read_bytes = 1;
 
-	else {
-		file_size = fileStatistic.st_size;
-	}
-
-	
 	while(!feof(filePointer)) {
 
 		memset(buffer, '\0', strlen(buffer));
 		read_bytes = fread(buffer, BUFFER_SIZE, 1, filePointer);
-		if(read_bytes >= 0) {
-			count = count + read_bytes*BUFFER_SIZE;
-			printf("%s", buffer);
-			sendMessage(connecting_socket, buffer);
-			//sent_bytes = send(connecting_socket, buffer, strlen(buffer), 0);
-			// if(sent_bytes == -1) {
-			// 	printf("Error! Cannot send data to client\n");
-			// 	break;
-			// }
-		}
-		else {
-			break;
-		}
-	}
 
-	send(connecting_socket, buffer, strlen(buffer), 0);
+		printf("%s\n", buffer);
+		sendMessage(connecting_socket, buffer);
+
+	}
 	
 	fclose(filePointer);
+
+	printf("zzz\n");
 
 	bzero(buffer, BUFFER_SIZE);
 	receiveMessage(connecting_socket, buffer);
 
-	printf("this is %s\n", buffer);
-
-	// Compute test result
-
-	count = 0;
-
-	messageLength = strlen(buffer);
-
-	printf("BLABLA: %d\n", sessionIndex);
-
-	for(index = 0; index < messageLength; index++) {
-		//printf("%c\n", sessions[sessionIndex].questions_answers_mapping[index].answer);
-		if(buffer[index] == sessions[sessionIndex].questions_answers_mapping[index].answer) {
-			count++;
-		}
+	if(strcmp(buffer, TIME_EXCEEDED) == 0) {
+		sessions[sessionIndex].sessionStatus = AUTHENTICATED_USER;
 	}
 
-	send(connecting_socket, &count, sizeof(int), 0);
+	else {
 
-	printf("%d per 5\n", count);
+		printf("This is %s\n", buffer);
 
+		// Compute test result
 
+		count = 0;
 
+		messageLength = strlen(buffer);
+
+		printf("BLABLA: %d\n", sessionIndex);
+
+		for(index = 0; index < messageLength; index++) {
+			//printf("%c\n", sessions[sessionIndex].questions_answers_mapping[index].answer);
+			if(buffer[index] == sessions[sessionIndex].questions_answers_mapping[index].answer) {
+				count++;
+			}
+		}
+
+		printf("%d\n", count);
+
+		send(connecting_socket, &count, sizeof(int), 0);
+
+		// Set back the session status 
+		sessions[sessionIndex].sessionStatus = AUTHENTICATED_USER;
+
+		//printf("%d per 5\n", count);
+	}
 
 	return 1;
 
@@ -199,8 +209,6 @@ int sendTrainingAcceptedResponse(int connecting_socket, struct sockaddr_in clien
 	strcpy(message_reply, TRAINING_REQUEST_ACCEPTED);
 	sendMessage(connecting_socket, message_reply);
 
-
-
 }
 
 int sendTrainingLogoutRequest(int connecting_socket, struct sockaddr_in clientAddress) {
@@ -209,18 +217,37 @@ int sendTrainingLogoutRequest(int connecting_socket, struct sockaddr_in clientAd
 
 }
 
-// int receiveTrainingAnswersFromUser(int connecting_socket, struct sockaddr_in clientAddress) {
 
-// 	int bytes_received;
-// 	char buffer[BUFFER_SIZE];
+const char* processTrainingRequest(int connecting_socket, struct sockaddr_in clientAddress) {
 
-// 	receiveMessage(connecting_socket, buffer);
+	int sessionIndex;
+	char buffer[BUFFER_SIZE];
 
+	sessionIndex = findSessionByClientAddress(clientAddress);
 
+	if(sessionIndex == -1) {
+		return USER_UNAUTHORIZED_ACTION;
+	}
 
-// }
+	else {
 
-// int sendResultsBackToUser(int connecting_socket, struct sockaddr_in clientAddress) {
+		if(sessions[sessionIndex].sessionStatus == AUTHENTICATED_USER) {
+			
+			// Send the training questions back to user
+			sendTrainingAcceptedResponse(connecting_socket, clientAddress);
+			sendTrainingQuestionsToUser(connecting_socket, clientAddress);
+			
+		}
 
+		else {
 
-// }
+			strcpy(buffer, USER_UNAUTHORIZED_ACTION);
+			sendMessage(connecting_socket, buffer);
+					
+		}
+
+	}
+
+	return NULL;
+
+}

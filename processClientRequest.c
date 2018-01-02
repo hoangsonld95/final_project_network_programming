@@ -1,5 +1,6 @@
 #include "struct.h"
 #include "handleTrainingRequest.c"
+#include "handleTestingRequest.c"
 
 
 int findUserByUserName(const char user_name[]) {
@@ -74,6 +75,8 @@ int findSessionByClientAddress(struct sockaddr_in clientAddress) {
 
 }
 
+
+
 int printClientAddress() {
 
 	int index;
@@ -83,7 +86,6 @@ int printClientAddress() {
 	}
 
 }
-
 
 const char* processUserRequest(char user_name[], int connecting_socket, struct sockaddr_in clientAddress) {
 
@@ -95,15 +97,20 @@ const char* processUserRequest(char user_name[], int connecting_socket, struct s
 
 	sessionIndex = findSessionByClientAddress(clientAddress);
 
+	// If cannot find the session in the existing session in the server
 	if(sessionIndex == -1) {
 
+		printf("aaa\n");
 
 		userSessionIndex = findSessionByUsername(user_name);
 
 		if(userSessionIndex == -1) {
 
+			printf("bbb\n");
 
 			if(findUserByUserName(user_name)) {
+
+				printf("ccc\n");
 
 				memcpy(&sessions[number_of_sessions].clientAddress, &clientAddress, sizeof(clientAddress));
 				sessions[number_of_sessions].sessionStatus = NOT_AUTHENTICATED_USER;
@@ -123,6 +130,9 @@ const char* processUserRequest(char user_name[], int connecting_socket, struct s
 
 		else {
 
+			printf("ddd\n");
+			printf("%d\n", userSessionIndex);
+
 			if(sessions[userSessionIndex].sessionStatus == NOT_AUTHENTICATED_USER) {
 
 				memcpy(&sessions[userSessionIndex].clientAddress, &clientAddress, sizeof(clientAddress));
@@ -133,6 +143,8 @@ const char* processUserRequest(char user_name[], int connecting_socket, struct s
 
 			else if(sessions[userSessionIndex].sessionStatus == AUTHENTICATED_USER) {
 
+				printf("eee\n");
+
 				return USER_ALREADY_LOGINNED;
 
 			}
@@ -142,6 +154,8 @@ const char* processUserRequest(char user_name[], int connecting_socket, struct s
 	}
 
 	else {
+
+		printf("eee\n");
 
 		if(strcmp(sessions[sessionIndex].user.user_name, user_name) == 0) {
 
@@ -270,9 +284,7 @@ const char* processLogoutRequest(char user_name[], int connecting_socket, struct
 
 					return LOGOUT_INVALID;
 
-				}
-
-				
+				}				
 
 			}
 
@@ -288,64 +300,9 @@ const char* processLogoutRequest(char user_name[], int connecting_socket, struct
 
 }
 
-const char* processTrainingRequest(int connecting_socket, struct sockaddr_in clientAddress) {
-
-	int sessionIndex;
-
-	sessionIndex = findSessionByClientAddress(clientAddress);
-
-	if(sessionIndex == -1) {
-		return USER_UNAUTHORIZED_ACTION;
-	}
-
-	else {
-
-		if(sessions[sessionIndex].sessionStatus == AUTHENTICATED_USER) {
-			// Send the training questions back to user
-			sendTrainingAcceptedResponse(connecting_socket, clientAddress);
-			sendTrainingQuestionsToUser(connecting_socket, clientAddress);
-			//sendTrainingLogoutRequest(connecting_socket, clientAddress);
-			receiveTrainingContinuingOrQuittingRequest(connecting_socket, clientAddress);
-			//receiveTrainingAnswersFromUser(connecting_socket, clientAddress);
-			//sendResultsBackToUser(connecting_socket, clientAddress);
-			return TRAINING_REQUEST_ACCEPTED;
 
 
-		}
 
-		else {
-
-			return USER_UNAUTHORIZED_ACTION;
-
-		}
-
-
-	}
-
-	return NULL;
-
-}
-
-const char* processTestingRequest(int connecting_socket, struct sockaddr_in clientAddress) {
-
-	int sessionIndex;
-
-	sessionIndex = findSessionByClientAddress(clientAddress);
-
-	if(sessionIndex == -1) {
-		return USER_UNAUTHORIZED_ACTION;
-	}
-
-	else {
-
-		if(sessions[sessionIndex].sessionStatus == AUTHENTICATED_USER) {
-
-		}
-
-	}
-
-
-}
 
 
 void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_in clientAddress) {
@@ -361,18 +318,11 @@ void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_
 	
 	if(strlen(opcode) ==  messageLength) {
 		strcpy(operand, "\0");
-		printf("<<<<<<<<<\n");
 	}
 
 	else {
 		strcpy(operand, strtok(NULL, "\0"));
-		printf(">>>>\n");
-		printf("%s\n", operand);
 	}
-	
-
-
-
 
 	if(strcmp(opcode, "USER") == 0) {
 		strcpy(message_reply, processUserRequest(operand, connecting_socket, clientAddress));
@@ -390,26 +340,26 @@ void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_
 
 	else if(strcmp(opcode, "LOGOUT") == 0) {
 
+		printf("xxxx\n");
 		strcpy(message_reply, processLogoutRequest(operand, connecting_socket, clientAddress));
 		printf("%s\n", message_reply);
 		sendMessage(connecting_socket, message_reply);
 
 	}
 
-
 	else if((strcmp(opcode, "TRAINING-MODE") == 0)) {
 
+		printf("yyy\n");
 
-		strcpy(message_reply, processTrainingRequest(connecting_socket, clientAddress));
+		processTrainingRequest(connecting_socket, clientAddress);
 		//printf("%s\n", message_reply);
-		sendMessage(connecting_socket, message_reply);
+		//sendMessage(connecting_socket, message_reply);
 
 	}
 
 	else if((strcmp(opcode, "TESTING-MODE")) == 0) {
-		strcpy(message_reply, processTestingRequest(connecting_socket, clientAddress));
-		printf("%s\n", message_reply);
-		sendMessage(connecting_socket, message_reply);
+		processTestingRequest(connecting_socket, clientAddress);
+		printf("xxx\n");
 	}
 
 
@@ -420,4 +370,4 @@ void processClientRequest(char buffer[], int connecting_socket, struct sockaddr_
 	}
 
 
-	}
+}
