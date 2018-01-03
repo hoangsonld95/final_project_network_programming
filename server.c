@@ -102,6 +102,12 @@ void printPredefinedSyntax() {
 
 }
 
+void startRoom() {
+
+	
+	
+}
+
 
 void *connection_handler(void *socketTupple) {
 
@@ -173,6 +179,8 @@ int main(int argc, char const *argv[])
 	addrlen = sizeof(struct sockaddr_in);
 
 	initializeSessions();
+
+	startRoom();
 
 	while((connecting_socket = accept(listening_socket, (struct sockaddr*)&clientAddress, &addrlen))) {
 

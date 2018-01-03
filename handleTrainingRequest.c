@@ -137,6 +137,7 @@ int sendTrainingQuestionsToUser(int connecting_socket, struct sockaddr_in client
 	filePointer = fopen("training/sending_file.txt", "w");	
 	
 	concenatingToSendingFile(filePointer, random_number);
+	
 	// Send the file to user
 
 	filePointer = fopen("training/sending_file.txt", "r+");
@@ -155,12 +156,16 @@ int sendTrainingQuestionsToUser(int connecting_socket, struct sockaddr_in client
 	
 	fclose(filePointer);
 
+
 	printf("zzz\n");
+
+	sessionIndex = findSessionByClientAddress(clientAddress);
 
 	bzero(buffer, BUFFER_SIZE);
 	receiveMessage(connecting_socket, buffer);
 
 	if(strcmp(buffer, TIME_EXCEEDED) == 0) {
+		printf("44\n");
 		sessions[sessionIndex].sessionStatus = AUTHENTICATED_USER;
 	}
 
@@ -177,7 +182,7 @@ int sendTrainingQuestionsToUser(int connecting_socket, struct sockaddr_in client
 		printf("BLABLA: %d\n", sessionIndex);
 
 		for(index = 0; index < messageLength; index++) {
-			//printf("%c\n", sessions[sessionIndex].questions_answers_mapping[index].answer);
+			printf("%c\n", sessions[sessionIndex].questions_answers_mapping[index].answer);
 			if(buffer[index] == sessions[sessionIndex].questions_answers_mapping[index].answer) {
 				count++;
 			}
@@ -185,12 +190,13 @@ int sendTrainingQuestionsToUser(int connecting_socket, struct sockaddr_in client
 
 		printf("%d\n", count);
 
-		send(connecting_socket, &count, sizeof(int), 0);
-
 		// Set back the session status 
 		sessions[sessionIndex].sessionStatus = AUTHENTICATED_USER;
 
-		//printf("%d per 5\n", count);
+		send(connecting_socket, &count, sizeof(int), 0);
+
+		
+
 	}
 
 	return 1;
@@ -208,12 +214,6 @@ int sendTrainingAcceptedResponse(int connecting_socket, struct sockaddr_in clien
 
 	strcpy(message_reply, TRAINING_REQUEST_ACCEPTED);
 	sendMessage(connecting_socket, message_reply);
-
-}
-
-int sendTrainingLogoutRequest(int connecting_socket, struct sockaddr_in clientAddress) {
-
-	
 
 }
 

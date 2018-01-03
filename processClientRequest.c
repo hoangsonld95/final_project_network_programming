@@ -149,6 +149,24 @@ const char* processUserRequest(char user_name[], int connecting_socket, struct s
 
 			}
 
+			else if(sessions[userSessionIndex].sessionStatus == CURRENTLY_IN_TRAINING_MODE) {
+
+				return USER_CURRENTLY_IN_TRAINING_MODE;
+
+			}
+
+			else if(sessions[userSessionIndex].sessionStatus == CURRENTLY_WAITING_IN_TESTING_MODE) {
+
+				return USER_WAITING_IN_TESTING_MODE;
+
+			}
+
+			else if(sessions[userSessionIndex].sessionStatus == CURRENTLY_IN_TESTING_MODE) {
+
+				return USER_CURRENTLY_IN_TESTING_MODE;
+
+			}
+
 		}
 
 	}
@@ -190,6 +208,14 @@ const char* processUserRequest(char user_name[], int connecting_socket, struct s
 
 				return LOGOUT_COMPULSORY;
 
+			}
+
+			else if(sessions[sessionIndex].sessionStatus == CURRENTLY_IN_TRAINING_MODE) {
+				return USER_CURRENTLY_IN_TRAINING_MODE;
+			}
+
+			else {
+				return USER_CURRENTLY_IN_TESTING_MODE;
 			}
 
 		}
@@ -276,6 +302,7 @@ const char* processLogoutRequest(char user_name[], int connecting_socket, struct
 					printf("%s\n", sessions[sessionIndex].user.user_name);
 					printf("%s\n", user_name);
 					memset(sessions[sessionIndex].user.user_name, '\0', BUFFER_SIZE);
+					memset(&sessions[sessionIndex].clientAddress, '\0', sizeof(struct sockaddr_in));
 					sessions[sessionIndex].sessionStatus = NOT_IDENTIFIED_USER;
 					return LOGOUT_ACCEPTED;
 				}
@@ -288,6 +315,17 @@ const char* processLogoutRequest(char user_name[], int connecting_socket, struct
 
 			}
 
+			else if(sessions[sessionIndex].sessionStatus == CURRENTLY_IN_TRAINING_MODE) {
+
+				return LOGOUT_INVALID;
+
+			}
+
+			else if(sessions[sessionIndex].sessionStatus == CURRENTLY_IN_TESTING_MODE) {
+				return LOGOUT_INVALID;
+			}
+
+
 		}
 
 		else {
@@ -299,9 +337,6 @@ const char* processLogoutRequest(char user_name[], int connecting_socket, struct
 	}
 
 }
-
-
-
 
 
 

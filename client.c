@@ -89,6 +89,7 @@ int submitResult(int client_socket) {
 	else {
 		strcpy(results, TIME_EXCEEDED);
 		showMessage(TIME_EXCEEDED);
+		sendMessage(client_socket, results);
 		return 0;
 	}
 	
@@ -180,7 +181,7 @@ int main(int argc, char const *argv[])
 		}
 
 		if(strcmp(buffer, TESTING_REQUEST_ACCEPTED) == 0) {
-			printf("TESTING REQUEST ACCEPTED\n");
+			printf("TESTING REQUEST ACCEPTED.\n");
 			printf("Enter the room you want to test in: \n");
 			bzero(room_name, 100);
 			fgets(room_name, 100, stdin);
@@ -188,7 +189,12 @@ int main(int argc, char const *argv[])
 			sendMessage(client_socket, room_name);
 			bzero(temporary, BUFFER_SIZE);
 			receiveMessage(client_socket, temporary);
-			printf("%s\n", temporary);
+
+			if(strcmp(temporary, ROOM_REQUEST_ACCEPTED) == 0) {
+				printf("ROOM REQUEST ACCEPTED. WAIT TO TEST FROM SERVER\n");
+			}
+
+			//printf("%s\n", temporary);
 			//receiveFileFromServer(client_socket);
 		}
 

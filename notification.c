@@ -24,6 +24,21 @@ void showMessage(char buffer[]) {
 		return;
 	}
 
+	else if(strcmp(buffer, USER_CURRENTLY_IN_TRAINING_MODE) == 0) {
+		printf("USER CURRENTLY IN TRAINING MODE\n");
+		return;
+	}
+
+	else if(strcmp(buffer, USER_WAITING_IN_TESTING_MODE) == 0) {
+		printf("USER IS WAITING IN THE TESTING MODE\n");
+		return;
+	}
+
+	else if(strcmp(buffer, USER_CURRENTLY_IN_TESTING_MODE) == 0) {
+		printf("USER IS CURRENTLY IN THE TESTING MODE\n");
+		return;
+	}
+
 	else if(strcmp(buffer, TRAINING_REQUEST_DENIED) == 0) {
 		printf("TRAINING REQUEST DENIED\n");
 		return;

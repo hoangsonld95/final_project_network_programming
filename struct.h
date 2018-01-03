@@ -3,6 +3,7 @@ enum SessionStatus {
 	NOT_AUTHENTICATED_USER,	// dung user, chua nhap password
 	AUTHENTICATED_USER, // dang nhap roi
 	CURRENTLY_IN_TRAINING_MODE, // dang trong trang thai training
+	CURRENTLY_WAITING_IN_TESTING_MODE, /// dang cho o phong test
 	CURRENTLY_IN_TESTING_MODE, // dang trong trang thai test
 };
 
@@ -16,14 +17,6 @@ struct User {
 	char password[100];
 };
 
-struct Room {
-	char room_name[100]; 
-	int number_of_questions; // so cau hoi
-	int testing_time; // thoi gian thi
-	struct User users[100]; 
-	enum RoomStatus roomStatus; 
-};
-
 struct Questions_Answers_Mapping {
 	int question;
 	char answer;
@@ -34,6 +27,15 @@ struct Session {
 	struct sockaddr_in clientAddress;
 	enum SessionStatus sessionStatus;
 	struct Questions_Answers_Mapping questions_answers_mapping[100];
+};
+
+struct Room {
+	char room_name[100]; // ten phong thi
+	int number_of_questions; // so cau hoi
+	int testing_time; // thoi gian thi, tinh bang giay
+	struct Session sessions[100]; // cac phien ket noi voi phong
+	int number_of_sessions_in_room; // so session hien tai trong phong
+	enum RoomStatus roomStatus; // trang thai phong
 };
 
 struct Socket_Tupple {

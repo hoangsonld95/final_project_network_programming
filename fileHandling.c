@@ -38,6 +38,8 @@ int readRoomsFromFile() {
 		number_of_rooms++;
 	}
 
+	rooms[number_of_rooms].number_of_sessions_in_room = 0;
+
 	printf("done\n");
 
 	fclose(filePointer);
